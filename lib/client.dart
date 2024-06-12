@@ -1,5 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
-
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:cczu_eva/fields.dart';
 import 'package:cczu_eva/type.dart';
@@ -55,11 +53,9 @@ class EVAClient {
 
   Future<String?> getEvalutionUrl(int order) async {
     var selector = BeautifulSoup(
-        (await client.get("http://202.195.102.53/web_jxpj/jxpj_xspj_kcxz.aspx"))
-            .data);
+        (await client.get("$baseUrl/web_jxpj/jxpj_xspj_kcxz.aspx")).data);
 
-    var raw = (await client.post(
-            "http://202.195.102.53/web_jxpj/jxpj_xspj_kcxz.aspx",
+    var raw = (await client.post("$baseUrl/web_jxpj/jxpj_xspj_kcxz.aspx",
             data: FormData.fromMap(EvalutionUrlQuery(
                     order: order,
                     state: ASPSessionState.fromElement(
