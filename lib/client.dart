@@ -2,7 +2,8 @@ import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:cczu_eva/fields.dart';
 import 'package:cczu_eva/type.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+
+var urlpattern = RegExp(r"(?<=top.winhtml\('..)\S+(?=\))");
 
 class EVAClient {
   final String username;
@@ -33,54 +34,53 @@ class EVAClient {
     return resp.statusCode == 302;
   }
 
-  Future<List<EvalutionEntry>> listTiles() async {
+  Future<List<EvaluationEntry>> listTiles() async {
     var selector = BeautifulSoup(
         (await client.get("$baseUrl/web_jxpj/jxpj_xspj_kcxz.aspx")).data);
 
     return selector.findAll("tr", class_: "dg1-item").indexed.map((item) {
       var tds = item.$2.findAll("td");
-      var entry = EvalutionEntry(
+      var entry = EvaluationEntry(
         name: tds[4].text,
         score: tds[9].text,
         teacher: tds[6].text,
         state: tds[7].text,
         order: item.$1,
-        evaType: tds[8].text,
       );
       return entry;
     }).toList();
   }
 
-  Future<String?> getEvalutionUrl(int order) async {
+  Future<String?> getEvaluationUrl(int order) async {
     var selector = BeautifulSoup(
         (await client.get("$baseUrl/web_jxpj/jxpj_xspj_kcxz.aspx")).data);
 
     var raw = (await client.post("$baseUrl/web_jxpj/jxpj_xspj_kcxz.aspx",
-            data: FormData.fromMap(EvalutionUrlQuery(
+            data: FormData.fromMap(EvaluationUrlQuery(
                     order: order,
                     state: ASPSessionState.fromElement(
                         selector.find("form", id: "form1")!))
                 .toMap())))
         .data
         .toString();
-    var pattern = RegExp(r"(?<=top.winhtml\('..)\S+(?=\))");
-    var matchs = pattern.stringMatch(raw);
+    var matchs = urlpattern.stringMatch(raw);
     if (matchs != null) {
       return baseUrl + matchs.split(",")[0].replaceAll("'", "");
     }
     return null;
   }
 
-  void evaluate(String evaUrl, OverallRating rating, String? comment,
+  Future<void> evaluate(
+      String evaUrl, Rating rating, String? comment, PartRatings parts,
       [Function(Response response)? callback]) async {
-    debugPrint(evaUrl);
     var state = ASPSessionState.fromBeautifulSoup(
         BeautifulSoup((await client.get(evaUrl)).data));
     client
         .post(evaUrl,
-            data: FormData.fromMap(EvalutionData(
+            data: FormData.fromMap(EvaluationData(
               comment: comment ?? "",
               rating: rating,
+              parts: parts,
               state: state,
             ).toMap()))
         .then(callback ?? (_) {});

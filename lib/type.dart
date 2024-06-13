@@ -6,25 +6,23 @@ abstract interface class IntoMap {
 }
 
 @immutable
-class EvalutionEntry {
+class EvaluationEntry {
   final int order;
   final String name;
   final String teacher;
   final String score;
   final String state;
-  final String evaType;
-  const EvalutionEntry({
+  const EvaluationEntry({
     required this.name,
     required this.score,
     required this.teacher,
     required this.state,
     required this.order,
-    required this.evaType,
   });
 
   @override
   String toString() {
-    return "EvalutionEntry $name $teacher $score $state $order";
+    return "EvaluationEntry $name $teacher $score $state $order";
   }
 }
 
@@ -73,11 +71,11 @@ class ASPSessionState implements IntoMap {
 }
 
 @immutable
-class EvalutionUrlQuery implements IntoMap {
+class EvaluationUrlQuery implements IntoMap {
   final ASPSessionState state;
   final int order;
 
-  const EvalutionUrlQuery({required this.state, required this.order});
+  const EvaluationUrlQuery({required this.state, required this.order});
 
   @override
   Map<String, dynamic> toMap() {
@@ -90,33 +88,76 @@ class EvalutionUrlQuery implements IntoMap {
   }
 }
 
-enum OverallRating { bad, normal, good, excellent }
+enum Rating { bad, normal, good, excellent }
+
+typedef PartRatings = (
+  Rating,
+  Rating,
+  Rating,
+  Rating,
+  Rating,
+  Rating,
+);
+
+extension on Rating {
+  String toEvaString() {
+    return switch (this) {
+      Rating.bad => "较差",
+      Rating.normal => "一般",
+      Rating.good => "较好",
+      Rating.excellent => "很好",
+    };
+  }
+
+  int toEvaPoint() {
+    return switch (this) {
+      Rating.bad => 40,
+      Rating.normal => 60,
+      Rating.good => 80,
+      Rating.excellent => 100,
+    };
+  }
+}
+
+extension on PartRatings {
+  (int, int, int, int, int, int) toPoints() {
+    return (
+      this.$1.toEvaPoint(),
+      this.$2.toEvaPoint(),
+      this.$3.toEvaPoint(),
+      this.$4.toEvaPoint(),
+      this.$5.toEvaPoint(),
+      this.$6.toEvaPoint()
+    );
+  }
+}
 
 @immutable
-class EvalutionData implements IntoMap {
+class EvaluationData implements IntoMap {
   final ASPSessionState state;
   final String comment;
-  final OverallRating rating;
+  final Rating rating;
+  final PartRatings parts;
 
-  const EvalutionData(
-      {required this.state, required this.comment, required this.rating});
+  const EvaluationData({
+    required this.state,
+    required this.comment,
+    required this.rating,
+    required this.parts,
+  });
 
   @override
   Map<String, dynamic> toMap() {
+    var points = parts.toPoints();
     return {
       "Txtyjjy": comment.isEmpty ? " " : comment,
-      "DDztpj": switch (rating) {
-        OverallRating.bad => "较差",
-        OverallRating.normal => "一般",
-        OverallRating.good => "较好",
-        OverallRating.excellent => "很好",
-      },
-      "GVpjzb\$ctl02\$RaBxz": 80,
-      "GVpjzb\$ctl03\$RaBxz": 80,
-      "GVpjzb\$ctl04\$RaBxz": 80,
-      "GVpjzb\$ctl05\$RaBxz": 80,
-      "GVpjzb\$ctl06\$RaBxz": 80,
-      "GVpjzb\$ctl07\$RaBxz": 80,
+      "DDztpj": rating.toEvaString(),
+      "GVpjzb\$ctl02\$RaBxz": points.$1,
+      "GVpjzb\$ctl03\$RaBxz": points.$2,
+      "GVpjzb\$ctl04\$RaBxz": points.$3,
+      "GVpjzb\$ctl05\$RaBxz": points.$4,
+      "GVpjzb\$ctl06\$RaBxz": points.$5,
+      "GVpjzb\$ctl07\$RaBxz": points.$6,
       "__EVENTTARGET": "",
       "__EVENTARGUMENT": "",
       "__LASTFOCUS": "",
