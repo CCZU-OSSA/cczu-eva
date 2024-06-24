@@ -1,4 +1,4 @@
-package com.example.cczu_eva
+package io.github.cczuossa.cczu_eva
 
 import io.flutter.embedding.android.FlutterActivity
 
