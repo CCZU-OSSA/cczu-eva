@@ -30,18 +30,22 @@ class EvaluationEntry {
 class ASPSessionState implements IntoMap {
   final String? viewstate;
   final String? viewstategenerator;
+  final String? viewstateencrypted;
   const ASPSessionState({
     this.viewstate,
     this.viewstategenerator,
+    this.viewstateencrypted,
   });
 
   static ASPSessionState fromBeautifulSoup(BeautifulSoup selector) {
     return ASPSessionState(
-        viewstate:
-            selector.find("input", id: "__VIEWSTATE")?.getAttrValue("value"),
-        viewstategenerator: selector
-            .find("input", id: "__VIEWSTATEGENERATOR")
-            ?.getAttrValue("value"));
+      viewstate:
+          selector.find("input", id: "__VIEWSTATE")?.getAttrValue("value"),
+      viewstategenerator: selector
+          .find("input", id: "__VIEWSTATEGENERATOR")
+          ?.getAttrValue("value"),
+      viewstateencrypted: "",
+    );
   }
 
   static ASPSessionState fromElement(Bs4Element selector) {
@@ -57,7 +61,8 @@ class ASPSessionState implements IntoMap {
   Map<String, String> toMap() {
     return {
       "__VIEWSTATE": viewstate.toString(),
-      "__VIEWSTATEGENERATOR": viewstategenerator.toString()
+      "__VIEWSTATEGENERATOR": viewstategenerator.toString(),
+      "__VIEWSTATEENCRYPTED": "",
     };
   }
 

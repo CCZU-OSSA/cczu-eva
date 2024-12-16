@@ -65,63 +65,78 @@ class HomePageState extends State<HomePage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8),
-                        child: EvaluationPanl(
-                          onSave: (rating, parts, comment) {
-                            showDialog(
-                              barrierDismissible: false,
-                              context: context,
-                              builder: (context) => ValueStateBuilder(
-                                builder: (context, state) => Dialog(
-                                    child: SizedBox.expand(
-                                  child: Center(
-                                      child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      CircularProgressIndicator(
-                                        value: state.value / data.length,
-                                      ),
-                                      const SizedBox(
-                                        height: 4,
-                                      ),
-                                      Text("${state.value} / ${data.length}"),
-                                    ],
-                                  )),
-                                )),
-                                init: 1,
-                                onInit: (context, state) {
-                                  for (var e in data) {
-                                    client
-                                        .getEvaluationUrl(e.order)
-                                        .then((url) {
-                                      if (url != null) {
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            EvaluationPanl(
+                              onSave: (rating, parts, comment) {
+                                showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (context) => ValueStateBuilder(
+                                    builder: (context, state) => Dialog(
+                                        child: SizedBox.expand(
+                                      child: Center(
+                                          child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          CircularProgressIndicator(
+                                            value: state.value / data.length,
+                                          ),
+                                          const SizedBox(
+                                            height: 4,
+                                          ),
+                                          Text(
+                                              "${state.value} / ${data.length}"),
+                                        ],
+                                      )),
+                                    )),
+                                    init: 1,
+                                    onInit: (context, state) {
+                                      for (var e in data) {
                                         client
-                                            .evaluate(
-                                          url,
-                                          rating,
-                                          comment,
-                                          parts,
-                                        )
-                                            .then((_) {
-                                          state.update(state.value + 1);
-                                          if (state.value + 1 == data.length) {
-                                            Navigator.pop(context);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(const SnackBar(
-                                              content: Text("已完成！请稍后自行查询是否有遗漏"),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                            ));
+                                            .getEvaluationUrl(e.order)
+                                            .then((url) {
+                                          if (url != null) {
+                                            client
+                                                .evaluate(
+                                              url,
+                                              rating,
+                                              comment,
+                                              parts,
+                                            )
+                                                .then((_) {
+                                              state.update(state.value + 1);
+                                              if (state.value + 1 ==
+                                                  data.length) {
+                                                Navigator.pop(context);
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                        const SnackBar(
+                                                  content:
+                                                      Text("已完成！请稍后自行查询是否有遗漏"),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                ));
+                                              }
+                                            });
                                           }
                                         });
                                       }
-                                    });
-                                  }
-                                },
-                              ),
-                            );
-                          },
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(
+                              height: 8,
+                            ),
+                            const Text(
+                                "注意：新的评价系统加入了评价雷同分数的检查，建议你分数选择一半相同，另一半分数不同再点击保存，否则可能会评价失败！"),
+                          ],
                         ),
                       ),
                     ],

@@ -83,7 +83,9 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-            )
+            ),
+            const Text(
+                "请务必确保你连接了 `CCZU` 校园网/校园网VPN再来登录！否则会导致登陆失败！日后可能会支持WebVPN登录。"),
           ],
         ),
       ),
